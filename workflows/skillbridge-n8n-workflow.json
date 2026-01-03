@@ -1,0 +1,893 @@
+{
+  "name": "SkillBridge",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        -1328
+      ],
+      "id": "87178085-1b0c-4a69-a75b-1bd6cac7b8d7",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -800,
+        -1824
+      ],
+      "id": "f3fcdb67-b32e-4d66-a953-3c04ec0d31e1",
+      "name": "SkillBridege",
+      "webhookId": "3b0b06e7-1fb0-40f7-b4d6-4c12221148f6",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output['Job Role'] }}",
+        "options": {
+          "systemMessage": "=You are an ATS job requirement generator.\n\nInput:\n- Target Job Role is provided.\n- Resume text is provided.\n\nTask:\nGenerate an ATS-friendly list of REQUIRED skills for the given job role.\n\nRules (STRICT):\n- Include ONLY skills that are NOT already mentioned in the resume text.\n- Include ONLY essential, high-impact skills for this role.\n- Do NOT include soft skills.\n- Do NOT include tools already present in the resume.\n- Limit the list to a MAXIMUM of 5 to 6 skills.\n- Skills must be realistic and commonly expected by ATS systems.\n\nOutput Rules:\n- Output MUST be valid JSON only.\n- Do NOT include explanations or extra text.\n- Do NOT include markdown.\n\nOutput format EXACTLY:\n{\n  \"required_skills\": []\n}\n\nTarget Job Role:\n{{ $json.output['Job Role'] }}\n\nResume Text:\n{{ $('Extract from pdf').item.json.text }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        16,
+        -1872
+      ],
+      "id": "84575a6a-38ff-4320-adb9-466eb477e661",
+      "name": "Job Requirements Generator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=required skills: {{ $json.output }}\nresume: {{ $('Extract from pdf').item.json.text }}",
+        "options": {
+          "systemMessage": "=You are a professional ATS resume optimization assistant.\n\nYou must follow the output format EXACTLY.\nAny deviation from the format is NOT allowed.\n\nCRITICAL RULES (STRICT):\n- Output PLAIN TEXT only\n- Do NOT output JSON\n- Do NOT output markdown\n- Do NOT include explanations or commentary\n- Do NOT include URLs, tool names, or platform names\n- Do NOT fabricate experience, roles, companies, years, metrics, or achievements\n- Use ONLY information already present in the resume\n- Required skills are for keyword alignment ONLY\n- If a detail is missing, OMIT it\n- Keep tone professional and realistic\n\nREFERENCE INPUTS (DO NOT REPEAT IN OUTPUT):\n\nrequired skills: {{ $json.output }}\n\nresume: {{ $('Extract from pdf').item.json.text }}\n\nOUTPUT STRUCTURE (MANDATORY):\n\nSECTION 1: Improved Summary\n- Exactly 2 lines\n- Line 1 MUST include:\n  • Candidate full name\n  • Primary job role or professional identity\n  • Years of experience ONLY if explicitly mentioned in resume\n- Line 2 MUST include:\n  • Core skills\n  • Domain focus\n  • Career direction\n- Do NOT include contact details\n\nSECTION 2: Skills Section Suggestions\n- Point-wise format using hyphen (-)\n- 3 to 5 points only\n- Reorganize ONLY existing resume skills\n- Improve keyword visibility using required skills where naturally applicable\n- Do NOT add new skills not present in the resume\n\nSECTION 3: Experience Improvements\n- EXACTLY 3 bullet points\n- Each bullet point MUST be EXACTLY 2 lines\n- Use hyphen (-) for bullets\n- Rewrite existing experience more clearly\n- Focus on responsibilities, tools, and scope already mentioned\n- Do NOT add metrics or achievements not present\n\nOUTPUT MUST FOLLOW THIS TEMPLATE EXACTLY:\n\nImproved Summary:\n<line 1>\n<line 2>\n\nSkills Section Suggestions:\n- <point 1>\n- <point 2>\n- <point 3>\n\nExperience Improvements:\n- <line 1>\n  <line 2>\n- <line 1>\n  <line 2>\n- <line 1>\n  <line 2>\n\nEXAMPLE OUTPUT (FOR FORMAT REFERENCE ONLY):\n\nImproved Summary:\nRahul Sharma is a Backend Software Engineer with experience in Python and REST API development.\nFocused on backend systems, database integration, and building scalable server-side applications.\n\nSkills Section Suggestions:\n- Group programming languages under a single category such as Backend Technologies.\n- Separate frameworks and libraries into a distinct section for ATS clarity.\n- Organize databases and tools into a dedicated Data and Tooling section.\n\nExperience Improvements:\n- Developed backend services using Python to support core application functionality.\n  Worked on REST API development and server-side logic in a production environment.\n- Collaborated with team members to maintain and improve existing backend systems.\n  Assisted in debugging issues and improving code reliability using version control tools.\n- Worked with relational databases to store and retrieve application data.\n  Followed structured development practices to ensure maintainable code.\n\nIf you cannot fully comply with any rule, produce the closest valid output without adding information.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        304,
+        -1872
+      ],
+      "id": "cfd86e53-671f-44e5-a975-47f52ddcb940",
+      "name": "Resume improvement suggestions"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "required_skills",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -1616
+      ],
+      "id": "cc14c7d6-628d-410e-919c-10456ecdcd97",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        -1408
+      ],
+      "id": "d4fc7a67-fc9c-4a50-b9e6-e4e282cfe9a0",
+      "name": "Wait",
+      "webhookId": "3a2221da-4fe2-481a-a1f8-a19dc9c54fe7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a14304df-7349-4a20-8887-686dc23aebbc",
+              "leftValue": "={{$json.message.document.mime_type === \"application/pdf\"",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -576,
+        -1840
+      ],
+      "id": "f043402a-55e1-481b-9650-2d114c49503c",
+      "name": "file format detection"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "76f6bd45-6f1a-43b4-a0b1-cd7035146643",
+              "leftValue": "={{$binary.data !== undefined}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -688,
+        -1696
+      ],
+      "id": "ae6b261d-5952-4e3e-8f34-e411dbc0d944",
+      "name": "classify text & file"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ebcaad21-2738-467c-a4b9-cc1d994f701a",
+              "leftValue": "{\n  \"intent\": \"casual\"\n}",
+              "rightValue": "={{ $json.output }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -432,
+        -1376
+      ],
+      "id": "482b50e8-985e-4228-9515-5694064da1b1",
+      "name": "classify text intent"
+    },
+    {
+      "parameters": {
+        "chatId": "5672953281",
+        "text": "=👋 Hi! I’m SkillBridge AI.\n\nI help you:\n• Analyze your resume\n• Estimate ATS score\n• Identify skill gaps\n• Suggest resume improvements\n• Recommend what to learn next\n\n📄 How to use me:\n1️⃣ Upload your resume (PDF )\n\nThat’s it. I’ll handle the rest 🚀\n",
+        "replyMarkup": "forceReply",
+        "forceReply": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        -1568
+      ],
+      "id": "9eb2b69a-152a-4051-86dd-239b6423acd1",
+      "name": "greeting/casual reply",
+      "webhookId": "430edf49-57c1-424e-bd8a-1562bfe34c7c",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5672953281",
+        "text": "⚠️ Invalid file format.|Please upload your resume as:• PDF",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        -1680
+      ],
+      "id": "4164aec6-5897-47b9-b218-6706affd836a",
+      "name": "Invalid file format",
+      "webhookId": "b84e12c2-8232-4872-be5a-623780b2713b",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -1872
+      ],
+      "id": "bb383d48-60a6-40df-8d4c-4ed562144057",
+      "name": "Extract from pdf"
+    },
+    {
+      "parameters": {
+        "chatId": "5672953281",
+        "text": "Great 👍|Please upload your resume (PDF only).",
+        "replyMarkup": "forceReply",
+        "forceReply": {},
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -224,
+        -1360
+      ],
+      "id": "eeff55ab-c1a9-48ca-a4eb-48d856d973b9",
+      "name": "file upload in pdf reply",
+      "webhookId": "5479aefc-0a59-4295-aa8c-a41238d36c4e",
+      "credentials": {
+        "telegramApi": {
+          "id": "bsNj5S687ItDKrUQ",
+          "name": "ThinkLess"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Skills",
+              "description": "extract all extract only pure skills given in text"
+            },
+            {
+              "name": "Job Role",
+              "description": "extract an job role from text main job from top of the profile or text only"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are a resume text extraction engine.\n\nExtract clean, readable plain text from the resume.\nIgnore formatting, icons, tables, and layout.\n\nReturn ONLY the extracted text.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        -1872
+      ],
+      "id": "1d02ea7d-de46-475b-a0b5-e189542a0521",
+      "name": "Extract Skills & Job Role"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -1408
+      ],
+      "id": "651e4bd4-90fe-4f62-a55c-6b51d8133970",
+      "name": "llama3.2:Latest",
+      "credentials": {
+        "ollamaApi": {
+          "id": "XzeXVzZagz4Tv0n1",
+          "name": "Ollama account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "5672953281",
+        "message": "📚 Would you like a curated learning resources list\nto help you close the identified skill gaps?\n\nReply with:\n• Yes – to receive learning resources\n• No – to skip this step\n",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Yes",
+            "disapproveLabel": "No"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        -1872
+      ],
+      "id": "24b15471-194f-4a51-8f3d-03f68099ed2b",
+      "name": "to receive learning resources(yes/no)",
+      "webhookId": "7dc93120-17b8-4636-8a89-de968f155d61",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9be6e324-aac9-428a-8212-7b96abc852c3",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        944,
+        -1872
+      ],
+      "id": "825affa2-f942-4f87-a7a9-2e0162ac2b3c",
+      "name": "yes/no"
+    },
+    {
+      "parameters": {
+        "chatId": "5672953281",
+        "text": "✅ All have been shared.\n\nThank you for visiting!\nIf you need further help with your resume or learning path, feel free to come back anytime.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1136,
+        -1744
+      ],
+      "id": "f0ae6009-e966-426e-a769-388ef9d78460",
+      "name": "signing off reply",
+      "webhookId": "a87f7c9a-d181-47ab-a772-ba6fdc29202d",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $('Job Requirements Generator').item.json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        -1616
+      ],
+      "id": "1204ef8f-bf84-4bf6-9913-8ad78922df3e",
+      "name": "json formatting"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        992,
+        -1616
+      ],
+      "id": "fbf1d7b4-d217-4075-8b71-a68f14df58d2",
+      "name": "Loop Over on skills to find resources on yt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer pplx-FexCb3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{ $json.required_skills }}full course on each separted by comma tutorial 2 hours 3 hours site:youtube.com\",\n  \"max_results\": 5,\n  \"max_tokens\": 25000,\n  \"max_tokens_per_page\": 2048,\n  \"search_domain_filter\": [\n    \"youtube.com\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        928,
+        -1408
+      ],
+      "id": "d2fa5642-fa1d-4f3e-ad7b-fd2fd4719177",
+      "name": "Perplexity Api"
+    },
+    {
+      "parameters": {
+        "chatId": "5672953281",
+        "text": "={{ $json.results[0].title }}:{{ $json.results[0].url }}\n\n{{ $json.results[2].title }}:{{ $json.results[2].url }}\n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        -1472
+      ],
+      "id": "b060d2b6-d6b1-448a-ac0d-3a5723e60192",
+      "name": "sending an final resources from yt",
+      "webhookId": "7d8ac8f0-2349-4c7e-8969-48fc81279461",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## @ final resume suggestion and required skills resources",
+        "height": 752,
+        "width": 1056,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        -1968
+      ],
+      "typeVersion": 1,
+      "id": "eb5a8652-0b6b-46e7-8179-5b6ce430e1c5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "chatId": "5672953281",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        -1872
+      ],
+      "id": "34a403c8-89d8-4a9b-a4e2-1a8deebb9ee4",
+      "name": "Improved resume suggestion",
+      "webhookId": "6f9aee88-70bb-42e5-bbf6-b1c4af08aea8",
+      "credentials": {
+        "telegramApi": {
+          "id": "LdBnHKp5PDZBuC2v",
+          "name": "SkillBridge"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## @ input classification and text extraction from binary file(pdf)",
+        "height": 752,
+        "width": 1072,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -816,
+        -1968
+      ],
+      "typeVersion": 1,
+      "id": "b1dc89c3-9df9-4fb3-87d7-3e7ab9d63dab",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are an intent classification engine for a Telegram bot.\n\nClassify the user's message into ONE category only:\n\n- \"casual\" → greetings, general talk, asking what the bot does\n- \"job_related\" → job roles, skills, resume, career, ATS, learning\n\nReturn ONLY valid JSON.\nDo not add explanations.\n\nFormat:\n{\n  \"intent\": \"casual or  job_related\"\n}\n\nstrictly remove the unnecessary /n or \\n in output \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -672,
+        -1520
+      ],
+      "id": "43ccc203-5d0e-40b6-8c3d-56abd0d78a7d",
+      "name": "Intent Classifier"
+    },
+    {
+      "parameters": {
+        "content": "# SkillBridge - Bot",
+        "height": 864,
+        "width": 2128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -816,
+        -2080
+      ],
+      "typeVersion": 1,
+      "id": "db2c09c1-e846-46ee-a405-662341f9f08b",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Job Requirements Generator",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Resume improvement suggestions",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SkillBridege": {
+      "main": [
+        [
+          {
+            "node": "classify text & file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Requirements Generator": {
+      "main": [
+        [
+          {
+            "node": "Resume improvement suggestions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume improvement suggestions": {
+      "main": [
+        [
+          {
+            "node": "Improved resume suggestion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over on skills to find resources on yt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "sending an final resources from yt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "file format detection": {
+      "main": [
+        [
+          {
+            "node": "Extract from pdf",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid file format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "classify text & file": {
+      "main": [
+        [
+          {
+            "node": "file format detection",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "classify text intent": {
+      "main": [
+        [
+          {
+            "node": "greeting/casual reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "file upload in pdf reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from pdf": {
+      "main": [
+        [
+          {
+            "node": "Extract Skills & Job Role",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Skills & Job Role": {
+      "main": [
+        [
+          {
+            "node": "Job Requirements Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "llama3.2:Latest": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Intent Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Extract Skills & Job Role",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Job Requirements Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Resume improvement suggestions",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "to receive learning resources(yes/no)": {
+      "main": [
+        [
+          {
+            "node": "yes/no",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "yes/no": {
+      "main": [
+        [
+          {
+            "node": "json formatting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signing off reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "json formatting": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over on skills to find resources on yt": {
+      "main": [
+        [
+          {
+            "node": "signing off reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Perplexity Api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity Api": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sending an final resources from yt": {
+      "main": [
+        [
+          {
+            "node": "Loop Over on skills to find resources on yt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Improved resume suggestion": {
+      "main": [
+        [
+          {
+            "node": "to receive learning resources(yes/no)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Classifier": {
+      "main": [
+        [
+          {
+            "node": "classify text intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ac39d030-382b-41e4-bee2-93a972520dbe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "ZZUUxSR0C3QnoaIG",
+  "tags": []
+}
