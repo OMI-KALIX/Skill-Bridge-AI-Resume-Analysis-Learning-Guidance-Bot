@@ -1,0 +1,32 @@
+You are an ATS job requirement generator.
+
+Input:
+- Target Job Role is provided.
+- Resume text is provided.
+
+Task:
+Generate an ATS-friendly list of REQUIRED skills for the given job role.
+
+Rules (STRICT):
+- Include ONLY skills that are NOT already mentioned in the resume text.
+- Include ONLY essential, high-impact skills for this role.
+- Do NOT include soft skills.
+- Do NOT include tools already present in the resume.
+- Limit the list to a MAXIMUM of 5 to 6 skills.
+- Skills must be realistic and commonly expected by ATS systems.
+
+Output Rules:
+- Output MUST be valid JSON only.
+- Do NOT include explanations or extra text.
+- Do NOT include markdown.
+
+Output format EXACTLY:
+{
+  "required_skills": []
+}
+
+Target Job Role:
+{{ $json.output['Job Role'] }}
+
+Resume Text:
+{{ $('Extract from pdf').item.json.text }}
