@@ -67,6 +67,11 @@ All logic is handled inside n8n workflows.
 
 ---
 
+### 🖼️ Automation Workflow:
+![Workflow Screenshot](assets/bot-demo.png)
+
+![Workflow Screenshot](assets/SkillBridgev1(1)(1).mp4)
+
 ## 🛠️ Tools & Technologies
 
 * **n8n** – Automation and workflow orchestration
