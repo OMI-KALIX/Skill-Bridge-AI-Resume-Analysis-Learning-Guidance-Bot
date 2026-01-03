@@ -45,7 +45,7 @@ No hype. No fake scores. Just clarity.
 
 1. User interacts with the bot on Telegram
 2. Bot detects intent (casual vs career-related)
-3. Resume is uploaded (PDF / DOCX only)
+3. Resume is uploaded (PDF only)
 4. Resume text is extracted
 5. Skills are identified from the resume
 6. Required skills are generated for the target role
@@ -73,7 +73,7 @@ All logic is handled inside n8n workflows.
 * **Local LLaMA 3.2** – AI reasoning and text generation
 * **Perplexity Search API** – Search-based learning resources
 * **Telegram Bot API** – User interaction layer
-* **PDF / DOCX parsing** – Resume text extraction
+* **PDF parsing** – Resume text extraction
 
 ---
 
@@ -90,7 +90,8 @@ SkillBridge/
 │   ├── resume-improvement-prompt.txt
 │   └── Job-Requirements-Generator.txt
 │
-├── screenshots/
+├── assets/
+│   ├── demo.mp4
 │   └── bot-demo.png
 │
 └── README.md
