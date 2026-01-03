@@ -70,7 +70,7 @@ All logic is handled inside n8n workflows.
 ### 🖼️ Automation Workflow:
 ![Workflow Screenshot](assets/bot-demo.png)
 
-![Workflow Screenshot](assets/SkillBridgev1(1)(1).mp4)
+## 📹 Demo video: https://github.com/OMI-KALIX/Skill-Bridge-AI-Resume-Analysis-Learning-Guidance-Bot/raw/refs/heads/main/assets/SkillBridge.mp4
 
 ## 🛠️ Tools & Technologies
 
